@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 
-    <title>Ask a Question</title>
+    <title>Users</title>
 
     <!-- Bootstrap core CSS -->
     <link href="{{ url_for('static', filename='bootstrap.min.css') }}" rel="stylesheet">
@@ -39,43 +39,25 @@
     <div class="container theme-showcase" role="main">
 
       <div class="page-header">
-        <h1>Ask A Question</h1>
+        <h1>Users</h1>
+        <h6>Click to promote to expert</h6>
       </div>
       <div class="row">
         <div class="col-lg-12">
-          <div class="well bs-component">
-            <form class="form-horizontal">
-              <fieldset>
-                <div class="form-group">
-                  <label for="textArea" class="col-lg-2 control-label">Question</label>
-                    <div class="col-lg-10">
-                      <textarea class="form-control" rows="3" id="textArea"></textarea>
-                      <span class="help-block">Ask away!</span>
-                    </div>
-                  </div>
-                  <div class="form-group">
-                    <label for="select" class="col-lg-2 control-label">Expert</label>
-                    <div class="col-lg-10">
-                      <select class="form-control" id="select">
-                        <option>Expert 1</option>
-                        <option>Expert 2</option>
-                        <option>Expert 3</option>
-                        <option>Expert 4</option>
-                        <option>Expert 5</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div class="form-group">
-                    <div class="col-lg-10 col-lg-offset-2">
-                      <button type="submit" class="btn btn-primary">Submit</button>
-                    </div>
-                  </div>
-                </fieldset>
-              </form>
-            </div>
+          <div class="list-group">
+            <a href="#" class="list-group-item active">
+              <h4 class="list-group-item-heading">Admin</h4>
+            </a>
+            <a href="#" class="list-group-item">
+              <h4 class="list-group-item-heading">Herbert</h4>
+            </a>
+            <a href="#" class="list-group-item active">
+              <h4 class="list-group-item-heading">Anthony</h4>
+            </a>
           </div>
-        </div>
+        </div><!-- /.col-lg-12 -->
       </div>
+
     </div> <!-- /container -->
 
   </body>
