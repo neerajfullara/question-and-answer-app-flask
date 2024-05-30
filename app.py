@@ -40,7 +40,7 @@ def register():
         db.execute('insert into user(name, password, expert, admin) values(?,?,?,?)', [request.form['name'], hashed_password, '0', '0'])
         db.commit()
         return '<h1>user created!</h1>'
-    return render_template('register.html')
+    return render_template('register.html', user=user)
 
 @app.route('/login', methods=['POST','GET'])
 def login():
@@ -62,42 +62,42 @@ def login():
         else:
             return '<h1>Password is incorect</h1>'
 
-    return render_template('login.html')
+    return render_template('login.html', user=user)
 
 @app.route('/answer')
 def answer():
     
     user = get_current_user()
 
-    return render_template('answer.html')
+    return render_template('answer.html', user=user)
 
 @app.route('/askaquestion')
 def askaquestion():
 
     user = get_current_user()
 
-    return render_template('askaquestion.html')
+    return render_template('askaquestion.html', user=user)
 
 @app.route('/question')
 def question():
 
     user = get_current_user()
 
-    return render_template('question.html')
+    return render_template('question.html', user=user)
 
 @app.route('/unanswered')
 def unanswered():
 
     user = get_current_user()
 
-    return render_template('unanwered.html')
+    return render_template('unanwered.html', user=user)
 
 @app.route('/users')
 def users():
 
     user = get_current_user()
     
-    return render_template('users.html')
+    return render_template('users.html', user=user)
 
 @app.route('/logout')
 def logout():
