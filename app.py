@@ -39,7 +39,7 @@ def register():
         hashed_password = generate_password_hash(request.form['password'], method='pbkdf2:sha256')
         db.execute('insert into user(name, password, expert, admin) values(?,?,?,?)', [request.form['name'], hashed_password, '0', '0'])
         db.commit()
-        return '<h1>user created!</h1>'
+        return redirect(url_for('index'))
     return render_template('register.html', user=user)
 
 @app.route('/login', methods=['POST','GET'])
@@ -58,7 +58,7 @@ def login():
 
         if check_password_hash(user_result['password'], password):
             session['user'] = user_result['name']
-            return '<h1>pasword is correct</h1>'
+            return redirect(url_for('index'))
         else:
             return '<h1>Password is incorect</h1>'
 
@@ -97,12 +97,22 @@ def users():
 
     user = get_current_user()
     
-    return render_template('users.html', user=user)
+    db = get_db()
+    users_cur = db.execute('select id, name, expert, admin from user')
+    users_results = users_cur.fetchall()
+    return render_template('users.html', user=user , users=users_results)
 
 @app.route('/logout')
 def logout():
     session.pop('user', None)
     return redirect(url_for('index'))
+
+@app.route('/promote/<user_id>')
+def promote(user_id):
+    db = get_db()
+    db.execute('update user set expert = 1 where id = ?',[user_id])
+    db.commit()
+    return redirect(url_for('users'))
 
 if __name__ == "__main__":
     app.run(debug=True)
