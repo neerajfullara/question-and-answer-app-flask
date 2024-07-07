@@ -71,12 +71,20 @@ def answer():
 
     return render_template('answer.html', user=user)
 
-@app.route('/askaquestion')
+@app.route('/askaquestion', methods=['GET','POST'])
 def askaquestion():
-
     user = get_current_user()
+    db = get_db()
 
-    return render_template('askaquestion.html', user=user)
+    if request.method == 'POST':
+        db.execute('insert into question (quetion_text, ask_by_id, expert_id) values (?,?,?)',[request.form['question'],user['id'], request.form['expert']])
+        db.commit()
+        return redirect(url_for('index'))
+
+    expert_cur = db.execute('select id, name from user where expert = 1')
+    expert_results = expert_cur.fetchall()
+
+    return render_template('askaquestion.html', user=user, experts = expert_results)
 
 @app.route('/question')
 def question():
@@ -89,8 +97,12 @@ def question():
 def unanswered():
 
     user = get_current_user()
+    db = get_db()
 
-    return render_template('unanwered.html', user=user)
+    question_cur = db.execute('select id, quetion_text, ask_by_id from question where answer_text is null and expert_id = (?)', [user['id']])
+    questions = question_cur.fetchall()
+
+    return render_template('unanswered.html', user=user, questions=questions)
 
 @app.route('/users')
 def users():
