@@ -64,12 +64,22 @@ def login():
 
     return render_template('login.html', user=user)
 
-@app.route('/answer')
-def answer():
+@app.route('/answer/<question_id>', methods=['GET', 'POST'])
+def answer(question_id):
     
     user = get_current_user()
+    db = get_db()
 
-    return render_template('answer.html', user=user)
+    if request.method == 'POST':
+        db.execute('update question set answer_text = ? where id = ?', [request.form['answer'], question_id])
+        db.commit()
+
+        return redirect(url_for('unanswered'))
+
+    question_cur = db.execute('select id, quetion_text from  question where id = ?', [question_id])
+    question = question_cur.fetchone()
+
+    return render_template('answer.html', user=user, question = question)
 
 @app.route('/askaquestion', methods=['GET','POST'])
 def askaquestion():
@@ -99,7 +109,7 @@ def unanswered():
     user = get_current_user()
     db = get_db()
 
-    question_cur = db.execute('select id, quetion_text, ask_by_id from question where answer_text is null and expert_id = (?)', [user['id']])
+    question_cur = db.execute('select question.id, question.quetion_text, user.name from question join user on user.id = question.ask_by_id where question.answer_text is null and question.expert_id = (?)', [user['id']])
     questions = question_cur.fetchall()
 
     return render_template('unanswered.html', user=user, questions=questions)
