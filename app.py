@@ -26,7 +26,13 @@ def get_current_user():
 @app.route('/')
 def index():
     user = get_current_user()
-    return render_template('home.html', user=user)
+    db = get_db()
+
+    question_cur = db.execute('select question.id as question_id, quetion_text, askers.name as asker_name, experts.name as expert_name from question join user as askers on askers.id = question.ask_by_id join user experts on experts.id = question.expert_id where question.answer_text is not null')
+    question_result = question_cur.fetchall()
+
+
+    return render_template('home.html', user=user, questions = question_result)
 
 @app.route('/register', methods=['GET','POST'])
 def register():
@@ -96,12 +102,15 @@ def askaquestion():
 
     return render_template('askaquestion.html', user=user, experts = expert_results)
 
-@app.route('/question')
-def question():
+@app.route('/question/<question_id>')
+def question(question_id):
 
     user = get_current_user()
+    db = get_db()
+    question_cur = db.execute('select question.quetion_text, question.answer_text, askers.name as asker_name, experts.name as expert_name from question join user as askers on askers.id = question.ask_by_id join user experts on experts.id = question.expert_id where question.id = ?', [question_id])
+    question = question_cur.fetchone()
 
-    return render_template('question.html', user=user)
+    return render_template('question.html', user=user, questions=question)
 
 @app.route('/unanswered')
 def unanswered():

@@ -49,10 +49,10 @@
     <div class="container theme-showcase" role="main">
 
       <div class="jumbotron">
-        <h1>What?</h1>
-        <p>This is the answer.</p>
-        <p><a class="btn btn-primary btn-lg">Asked By: Herbert</a></p>
-        <p><a class="btn btn-primary btn-lg">Answered By: Anthony</a></p>
+        <h1>{{questions['quetion_text']}}</h1>
+        <p>{{questions['answer_text']}}</p>
+        <p><a class="btn btn-primary btn-lg">Asked By: {{ questions['asker_name']}}</a></p>
+        <p><a class="btn btn-primary btn-lg">Answered By: {{ questions['expert_name']}}</a></p>
       </div>
 
     </div> <!-- /container -->
