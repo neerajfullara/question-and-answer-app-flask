@@ -41,6 +41,11 @@ def register():
 
     if request.method =='POST':
         db = get_db()
+        existing_user_cur = db.execute('select id from user where name = ?', [request.form['name']])
+        existing_user = existing_user_cur.fetchone()
+
+        if existing_user:
+            return render_template('register.html', user = user, error = 'User already exist!')
         # This will generate the hash for password entered at the time of registeration
         hashed_password = generate_password_hash(request.form['password'], method='pbkdf2:sha256')
         db.execute('insert into user(name, password, expert, admin) values(?,?,?,?)', [request.form['name'], hashed_password, '0', '0'])
@@ -52,6 +57,8 @@ def register():
 def login():
 
     user = get_current_user()
+    if not user:
+        return redirect(url_for('login'))
 
     if request.method == 'POST':
         db = get_db()
@@ -74,6 +81,12 @@ def login():
 def answer(question_id):
     
     user = get_current_user()
+    if not user:
+        return redirect(url_for('login'))
+    
+    if user['expert'] == 0:
+        return redirect(url_for('index'))
+    
     db = get_db()
 
     if request.method == 'POST':
@@ -90,6 +103,9 @@ def answer(question_id):
 @app.route('/askaquestion', methods=['GET','POST'])
 def askaquestion():
     user = get_current_user()
+    if not user:
+        return redirect(url_for('login'))
+    
     db = get_db()
 
     if request.method == 'POST':
@@ -106,6 +122,9 @@ def askaquestion():
 def question(question_id):
 
     user = get_current_user()
+    if not user:
+        return redirect(url_for('login'))
+
     db = get_db()
     question_cur = db.execute('select question.quetion_text, question.answer_text, askers.name as asker_name, experts.name as expert_name from question join user as askers on askers.id = question.ask_by_id join user experts on experts.id = question.expert_id where question.id = ?', [question_id])
     question = question_cur.fetchone()
@@ -116,6 +135,12 @@ def question(question_id):
 def unanswered():
 
     user = get_current_user()
+    if not user:
+        return redirect(url_for('login'))
+    
+    if user['expert'] == 0:
+        return redirect(url_for('index'))
+    
     db = get_db()
 
     question_cur = db.execute('select question.id, question.quetion_text, user.name from question join user on user.id = question.ask_by_id where question.answer_text is null and question.expert_id = (?)', [user['id']])
@@ -127,6 +152,12 @@ def unanswered():
 def users():
 
     user = get_current_user()
+
+    if not user:
+        return redirect(url_for('login'))
+    
+    if user['admin'] == 0:
+        return redirect(url_for('index'))
     
     db = get_db()
     users_cur = db.execute('select id, name, expert, admin from user')
@@ -140,6 +171,14 @@ def logout():
 
 @app.route('/promote/<user_id>')
 def promote(user_id):
+
+    user = get_current_user()
+    if not user:
+        return redirect(url_for('login'))
+    
+    if user['admin'] == 0:
+        return redirect(url_for('index'))
+    
     db = get_db()
     db.execute('update user set expert = 1 where id = ?',[user_id])
     db.commit()
