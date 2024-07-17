@@ -57,8 +57,7 @@ def register():
 def login():
 
     user = get_current_user()
-    if not user:
-        return redirect(url_for('login'))
+    error = None
 
     if request.method == 'POST':
         db = get_db()
@@ -69,13 +68,17 @@ def login():
         user_cur = db.execute('select id, name, password from user where name = ?',[name])
         user_result = user_cur.fetchone()
 
-        if check_password_hash(user_result['password'], password):
-            session['user'] = user_result['name']
-            return redirect(url_for('index'))
+        # login failure
+        if user_result:
+            if check_password_hash(user_result['password'], password):
+                session['user'] = user_result['name']
+                return redirect(url_for('index'))
+            else:
+                error = 'Password is incorect'
         else:
-            return '<h1>Password is incorect</h1>'
+            error = 'User name is incorrect'
 
-    return render_template('login.html', user=user)
+    return render_template('login.html', user=user, error=error)
 
 @app.route('/answer/<question_id>', methods=['GET', 'POST'])
 def answer(question_id):
