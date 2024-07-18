@@ -18,7 +18,7 @@ def get_current_user():
         user = session['user']
 
         db = get_db()
-        user_cur = db.execute('select id, name, password,expert, admin from user where name = ?',[user])
+        user_cur = db.execute('select id, name, password,expert, admin from users where name = ?',[user])
         user_result = user_cur.fetchone()
 
     return user_result
@@ -31,7 +31,7 @@ def index():
     question_cur = db.execute(
         '''select question.id as question_id, quetion_text, askers.name as asker_name, experts.name as expert_name 
         from question join user as askers on askers.id = question.ask_by_id 
-        join user experts on experts.id = question.expert_id where question.answer_text is not null'''
+        join users experts on experts.id = question.expert_id where question.answer_text is not null'''
         )
     question_result = question_cur.fetchall()
 
@@ -45,14 +45,14 @@ def register():
 
     if request.method =='POST':
         db = get_db()
-        existing_user_cur = db.execute('select id from user where name = ?', [request.form['name']])
+        existing_user_cur = db.execute('select id from users where name = ?', [request.form['name']])
         existing_user = existing_user_cur.fetchone()
 
         if existing_user:
             return render_template('register.html', user = user, error = 'User already exist!')
         # This will generate the hash for password entered at the time of registeration
         hashed_password = generate_password_hash(request.form['password'], method='pbkdf2:sha256')
-        db.execute('''insert into user(name, password, expert, admin) 
+        db.execute('''insert into users(name, password, expert, admin) 
                    values(?,?,?,?)''', [request.form['name'], hashed_password, '0', '0'])
         db.commit()
         return redirect(url_for('index'))
@@ -70,7 +70,7 @@ def login():
         name = request.form['name']
         password = request.form['password']
 
-        user_cur = db.execute('select id, name, password from user where name = ?',[name])
+        user_cur = db.execute('select id, name, password from users where name = ?',[name])
         user_result = user_cur.fetchone()
 
         # login failure
@@ -121,7 +121,7 @@ def askaquestion():
         db.commit()
         return redirect(url_for('index'))
 
-    expert_cur = db.execute('select id, name from user where expert = 1')
+    expert_cur = db.execute('select id, name from users where expert = 1')
     expert_results = expert_cur.fetchall()
 
     return render_template('askaquestion.html', user=user, experts = expert_results)
@@ -136,8 +136,8 @@ def question(question_id):
     db = get_db()
     question_cur = db.execute(
         '''select question.quetion_text, question.answer_text, askers.name as asker_name, experts.name as expert_name 
-        from question join user as askers on askers.id = question.ask_by_id 
-        join user experts on experts.id = question.expert_id where question.id = ?''', [question_id]
+        from question join users as askers on askers.id = question.ask_by_id 
+        join users experts on experts.id = question.expert_id where question.id = ?''', [question_id]
         )
     question = question_cur.fetchone()
 
@@ -156,8 +156,8 @@ def unanswered():
     db = get_db()
 
     question_cur = db.execute(
-        '''select question.id, question.quetion_text, user.name from question 
-        join user on user.id = question.ask_by_id where question.answer_text is null 
+        '''select question.id, question.quetion_text, users.name from question 
+        join users on user.id = question.ask_by_id where question.answer_text is null 
         and question.expert_id = (?)''', [user['id']]
         )
     questions = question_cur.fetchall()
@@ -176,7 +176,7 @@ def users():
         return redirect(url_for('index'))
     
     db = get_db()
-    users_cur = db.execute('select id, name, expert, admin from user')
+    users_cur = db.execute('select id, name, expert, admin from users')
     users_results = users_cur.fetchall()
     return render_template('users.html', user=user , users=users_results)
 
@@ -196,7 +196,7 @@ def promote(user_id):
         return redirect(url_for('index'))
     
     db = get_db()
-    db.execute('update user set expert = 1 where id = ?',[user_id])
+    db.execute('update users set expert = 1 where id = ?',[user_id])
     db.commit()
     return redirect(url_for('users'))
 
