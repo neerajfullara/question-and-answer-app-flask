@@ -14,7 +14,7 @@ def get_db():
     return g.sqlite_db
 '''
 def connect_db():
-    conn = psycopg2.connect('postgresql://schemas_user:Uk1YqdEUMKtuN88bMzN0l6t5OpJufgaZ@dpg-cqcbjsg8fa8c73cmm5r0-a.oregon-postgres.render.com/schemas', cursor_factory=DictCursor)
+    conn = psycopg2.connect('postgresql://schemas_user:Uk1YqdEUMKtuN88bMzN0l6t5OpJufgaZ@dpg-cqcbjsg8fa8c73cmm5r0-a/schemas', cursor_factory=DictCursor)
     conn.autocommit = True
     sql = conn.cursor()
     return conn, sql
